@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Gestão de Produtos</title>
+
+    <!-- Bootstrap 5.3 CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">Gestão de Produtos</a>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Lista de Produtos</h2>
+        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#productModal">Novo Produto</button>
+    </div>
+
+    <table class="table table-hover table-bordered">
+        <thead class="table-primary">
+        <tr>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>NCM</th>
+            <th>CFOP</th>
+            <th>Preço Custo</th>
+            <th>Preço Venda</th>
+            <th>Estoque</th>
+            <th>Ações</th>
+        </tr>
+        </thead>
+        <tbody id="productTableBody">
+        <tr><td colspan="8" class="text-center text-muted">Carregando produtos...</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal de cadastro/edição -->
+<div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="productModalLabel">Novo Produto</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body">
+                <form id="productForm">
+                    <input type="hidden" id="productId">
+                    <div class="mb-3">
+                        <label class="form-label">Nome</label>
+                        <input type="text" class="form-control" id="nome" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">NCM</label>
+                        <input type="text" class="form-control" id="ncm">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">CFOP</label>
+                        <input type="text" class="form-control" id="cfop">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Preço Custo</label>
+                        <input type="number" class="form-control" id="precoCusto" step="0.01">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Preço Venda</label>
+                        <input type="number" class="form-control" id="precoVenda" step="0.01">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Estoque</label>
+                        <input type="number" class="form-control" id="estoque">
+                    </div>
+                    <button type="submit" class="btn btn-success">Salvar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS + Script da página -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const apiUrl = "/products";
+
+    async function carregarProdutos() {
+      const res = await fetch(apiUrl);
+      const produtos = await res.json();
+
+      const tbody = document.getElementById("productTableBody");
+      tbody.innerHTML = "";
+
+      produtos.forEach(p => {
+        const row = `
+          <tr>
+            <td>${p.id}</td>
+            <td>${p.nome}</td>
+            <td>${p.ncm || ''}</td>
+            <td>${p.cfop || ''}</td>
+            <td>R$ ${p.precoCusto?.toFixed(2) || 0}</td>
+            <td>R$ ${p.precoVenda?.toFixed(2) || 0}</td>
+            <td>${p.estoque || 0}</td>
+            <td>
+              <button class="btn btn-sm btn-warning me-2" onclick="editarProduto(${p.id})">Editar</button>
+              <button class="btn btn-sm btn-danger" onclick="excluirProduto(${p.id})">Excluir</button>
+            </td>
+          </tr>`;
+        tbody.innerHTML += row;
+      });
+    }
+
+    document.getElementById("productForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const produto = {
+        nome: nome.value,
+        ncm: ncm.value,
+        cfop: cfop.value,
+        precoCusto: parseFloat(precoCusto.value),
+        precoVenda: parseFloat(precoVenda.value),
+        estoque: parseInt(estoque.value)
+      };
+
+      const id = document.getElementById("productId").value;
+      const method = id ? "PUT" : "POST";
+      const url = id ? `${apiUrl}/${id}` : apiUrl;
+
+      await fetch(url, {
+        method,
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(produto)
+      });
+
+      document.getElementById("productForm").reset();
+      bootstrap.Modal.getInstance(document.getElementById("productModal")).hide();
+      carregarProdutos();
+    });
+
+    async function editarProduto(id) {
+      const res = await fetch(`${apiUrl}/${id}`);
+      const p = await res.json();
+      productId.value = p.id;
+      nome.value = p.nome;
+      ncm.value = p.ncm;
+      cfop.value = p.cfop;
+      precoCusto.value = p.precoCusto;
+      precoVenda.value = p.precoVenda;
+      estoque.value = p.estoque;
+      new bootstrap.Modal(document.getElementById("productModal")).show();
+    }
+
+    async function excluirProduto(id) {
+      if (confirm("Tem certeza que deseja excluir este produto?")) {
+        await fetch(`${apiUrl}/${id}`, { method: "DELETE" });
+        carregarProdutos();
+      }
+    }
+
+    carregarProdutos();
+</script>
+</body>
+</html>
