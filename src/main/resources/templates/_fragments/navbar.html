@@ -14,6 +14,7 @@
 <!-- defines a fragment name 'layout' that receives a
  parameter 'content'. This parameter will be
  replaced in subpages -->
+
 <div class="container" th:fragment="fragments(navbar)">
     <header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
         <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
@@ -27,7 +28,7 @@
             <li class="nav-item"><a href="#" class="nav-link">Pricing</a></li>
             <li class="nav-item"><a href="#" class="nav-link">FAQs</a></li>
             <li class="nav-item">
-                <a th:href="@{/login}" class="nav-link">Entrar</a>
+                <a th:href="@{/auth/login}" class="nav-link">Entrar</a>
             </li>
         </ul>
     </header>
