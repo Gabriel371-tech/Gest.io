@@ -3,6 +3,7 @@ package br.com.io.Gest.model;
 import jakarta.persistence.*;
 
 @Entity
+@Table(name = "produtos")
 public class Product {
 
     @Id

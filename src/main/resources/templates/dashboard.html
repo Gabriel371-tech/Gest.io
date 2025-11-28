@@ -11,7 +11,7 @@
 <div class="container py-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="fw-bold">📦 Dashboard de Produtos</h2>
-        <a href="/produtos/novo" class="btn btn-success">
+        <a th:href="@{/produtos/novo}" class="btn btn-success">
             + Cadastrar Produto
         </a>
     </div>
@@ -36,11 +36,18 @@
                 <td>R$ <span th:text="${produto.preco}"></span></td>
                 <td th:text="${produto.quantidade}"></td>
                 <td>
+                    <a th:href="@{/produtos/editar/{id}(id=${produto.id})}"
+                       class="btn btn-warning btn-sm">
+                        ✏ Editar
+                    </a>
+
                     <a th:href="@{/produtos/deletar/{id}(id=${produto.id})}"
-                       class="btn btn-danger btn-sm">
+                       class="btn btn-danger btn-sm"
+                       onclick="return confirm('Tem certeza que deseja excluir?')">
                         🗑 Excluir
                     </a>
                 </td>
+
             </tr>
             </tbody>
         </table>

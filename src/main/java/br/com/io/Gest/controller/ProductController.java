@@ -7,12 +7,22 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+
+
 @Controller
 @RequestMapping("/produtos")
 public class ProductController {
 
+
+
     @Autowired
     private ProductRepository productRepository;
+
+    @GetMapping("/novo")
+    public String novoProduto(Model model) {
+        model.addAttribute("produto", new Product());
+        return "produto-form";
+    }
 
     // LISTAR PRODUTOS NA DASHBOARD
     @GetMapping
@@ -29,16 +39,15 @@ public class ProductController {
         return "redirect:/produtos";
     }
 
-    // EDITAR PRODUTO
     @GetMapping("/editar/{id}")
     public String editarProduto(@PathVariable Long id, Model model) {
         Product produto = productRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Produto inválido: " + id));
 
         model.addAttribute("produto", produto);
-        model.addAttribute("produtos", productRepository.findAll());
-        return "dashboard";
+        return "produto-editar"; // nova página
     }
+
 
     // ATUALIZAR PRODUTO
     @PostMapping("/atualizar/{id}")
